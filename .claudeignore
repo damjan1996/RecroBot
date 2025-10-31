@@ -1,0 +1,70 @@
+# Claude ignore file - files and directories to exclude from Claude's context
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+.yarn/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.nuxt/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large binary files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Images (optional - uncomment if you want to exclude)
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
+# *.svg
+
+# Documentation that might be auto-generated
+CHANGELOG.md
+ONSAFE_FIX_TEST.md
