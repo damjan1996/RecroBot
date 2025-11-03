@@ -22,7 +22,7 @@ export class VapiClient {
   private config: VapiConfig
   private transcriptTimeout: NodeJS.Timeout | null = null
   private isInitialized = false
-  private lastPartialMessage: { role: string; text: string; timestamp: number } | null = null
+  private lastPartialMessage: { role: 'assistant' | 'user'; text: string; timestamp: number } | null = null
 
   constructor(config: VapiConfig) {
     this.config = config
