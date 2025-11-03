@@ -20,6 +20,7 @@ function onSafe(target: any, event: string, handler: (...args: any[]) => void) {
 export class VapiClient {
   private vapi: Vapi | null = null
   private config: VapiConfig
+  private transcriptTimeout: NodeJS.Timeout | null = null
   private isInitialized = false
   private lastPartialMessage: { role: string; text: string; timestamp: number } | null = null
 
@@ -175,15 +176,50 @@ export class VapiClient {
       return
     }
 
-    // Only process final transcripts to avoid the splitting issue
     const transcriptType = message?.transcriptType || 'final'
+    const currentRole = role as 'user' | 'assistant'
     
+    // Handle partial transcripts with delay
     if (transcriptType !== 'final') {
-      console.log('⏳ Skipping partial transcript:', transcriptType, text.substring(0, 30) + '...')
+      console.log('⏳ Partial transcript:', transcriptType, text.substring(0, 30) + '...')
+      
+      // Store partial message
+      this.lastPartialMessage = {
+        role: currentRole,
+        text: text.trim(),
+        timestamp: Date.now()
+      }
+      
+      // Clear existing timeout
+      if (this.transcriptTimeout) {
+        clearTimeout(this.transcriptTimeout)
+      }
+      
+      // Set 1-second delay before processing
+      this.transcriptTimeout = setTimeout(() => {
+        if (this.lastPartialMessage) {
+          const finalMessage: VapiMessage = {
+            role: this.lastPartialMessage.role,
+            content: this.lastPartialMessage.text,
+            timestamp: this.lastPartialMessage.timestamp,
+          }
+          
+          console.log('✅ DELAYED transcript message:', finalMessage.content)
+          onMessage(finalMessage)
+          this.lastPartialMessage = null
+        }
+      }, 1000)
+      
       return
     }
 
-    const currentRole = role as 'user' | 'assistant'
+    // Process final transcripts immediately and clear any pending partial
+    if (this.transcriptTimeout) {
+      clearTimeout(this.transcriptTimeout)
+      this.transcriptTimeout = null
+      this.lastPartialMessage = null
+    }
+
     const finalMessage: VapiMessage = {
       role: currentRole,
       content: text.trim(),
@@ -271,6 +307,13 @@ export class VapiClient {
   }
 
   cleanup(): void {
+    // Clear any pending transcript timeout
+    if (this.transcriptTimeout) {
+      clearTimeout(this.transcriptTimeout)
+      this.transcriptTimeout = null
+    }
+    this.lastPartialMessage = null
+    
     this.removeAllListeners()
     this.vapi = null
     this.isInitialized = false
