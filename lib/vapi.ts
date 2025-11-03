@@ -195,7 +195,7 @@ export class VapiClient {
         clearTimeout(this.transcriptTimeout)
       }
       
-      // Set 1-second delay before processing
+      // Set 4-second delay before processing to allow complete sentences
       this.transcriptTimeout = setTimeout(() => {
         if (this.lastPartialMessage) {
           const finalMessage: VapiMessage = {
@@ -208,7 +208,7 @@ export class VapiClient {
           onMessage(finalMessage)
           this.lastPartialMessage = null
         }
-      }, 1000)
+      }, 4000)
       
       return
     }
